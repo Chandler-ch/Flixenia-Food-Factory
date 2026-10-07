@@ -94,7 +94,7 @@ app.post(
               ],
             });
           },
-          1 * 60 * 1000,
+          3 * 60 * 60 * 1000,
         );
         return res.send({
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,

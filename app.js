@@ -7,8 +7,6 @@ import {
   MessageComponentTypes,
   verifyKeyMiddleware,
 } from "discord-interactions";
-import fs from "fs";
-import path from "path";
 import { getRandomEmoji } from "./utils.js";
 import { AttachmentBuilder, Client, GatewayIntentBits } from "discord.js";
 
@@ -71,15 +69,14 @@ app.post(
       if (name === "image") {
         const channel = await client.channels.fetch(channel_id);
 
-        const imageFolder = "./assets/essen";
-        const images = fs
-          .readdirSync(imageFolder)
-          .map((file) => path.join(imageFolder, file));
+        const imgSrcStart = "./assets/essen/img_";
 
         setInterval(
           async () => {
-            const image = images[Math.floor(Math.random * images.length)];
-            const attachment = new AttachmentBuilder(image);
+            const imgNum = Math.floor(Math.random() * 238);
+            const attachment = new AttachmentBuilder(
+              imgSrcStart + imgNum + ".jpeg",
+            );
             await channel.send({
               flags: InteractionResponseFlags.IS_COMPONENTS_V2,
               files: [attachment],
@@ -89,7 +86,7 @@ app.post(
                   items: [
                     {
                       media: {
-                        url: `attachment://${image}`,
+                        url: `attachment://img_${imgNum}.jpeg`,
                       },
                     },
                   ],
@@ -97,8 +94,21 @@ app.post(
               ],
             });
           },
-          10 * 60 * 1000,
+          1 * 60 * 1000,
         );
+        return res.send({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            flags: InteractionResponseFlags.IS_COMPONENTS_V2,
+            components: [
+              {
+                type: MessageComponentTypes.TEXT_DISPLAY,
+                // Fetches a random emoji to send from a helper function
+                content: "Flixenia's Food Factory started to work!",
+              },
+            ],
+          },
+        });
       }
 
       console.error(`unknown command: ${name}`);

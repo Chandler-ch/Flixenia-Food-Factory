@@ -7,11 +7,10 @@ import {
   MessageComponentTypes,
   verifyKeyMiddleware,
 } from "discord-interactions";
+import fs from "fs";
+import path from "path";
 import { getRandomEmoji } from "./utils.js";
-import imageA from "./assets/img_0.jpeg";
-import imageB from "./assets/img_1.jpeg";
-import imageC from "./assets/img_2.jpeg";
-import { AttachmentBuilder } from "discord.js";
+import { AttachmentBuilder, Client, GatewayIntentBits } from "discord.js";
 
 // Create an express app
 const app = express();
@@ -19,6 +18,11 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 // To keep track of our active games
 const activeGames = {};
+
+const client = new Client({
+  intents: [GatewayIntentBits.Guilds],
+});
+client.login(process.env.DISCORD_TOKEN);
 
 /**
  * Interactions endpoint URL where Discord will send HTTP requests
@@ -29,7 +33,7 @@ app.post(
   verifyKeyMiddleware(process.env.PUBLIC_KEY),
   async function (req, res) {
     // Interaction id, type and data
-    const { id, type, data } = req.body;
+    const { type, data, channel_id } = req.body;
 
     /**
      * Handle verification requests
@@ -64,33 +68,37 @@ app.post(
       }
 
       // 'image' command
-      const images = [imageA, imageB, imageC];
       if (name === "image") {
-        images.forEach((image) => {
-          let dcImage = AttachmentBuilder(image);
+        const channel = await client.channels.fetch(channel_id);
 
-          setTimeout(10000);
-          return res.send({
-            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-            data: {
+        const imageFolder = "./assets/essen";
+        const images = fs
+          .readdirSync(imageFolder)
+          .map((file) => path.join(imageFolder, file));
+
+        setInterval(
+          async () => {
+            const image = images[Math.floor(Math.random * images.length)];
+            const attachment = new AttachmentBuilder(image);
+            await channel.send({
               flags: InteractionResponseFlags.IS_COMPONENTS_V2,
-              files: [dcImage],
+              files: [attachment],
               components: [
                 {
                   type: MessageComponentTypes.MEDIA_GALLERY,
-                  // Fetches a random emoji to send from a helper function
                   items: [
                     {
                       media: {
-                        url: "attachment://" + image,
+                        url: `attachment://${image}`,
                       },
                     },
                   ],
                 },
               ],
-            },
-          });
-        });
+            });
+          },
+          10 * 60 * 1000,
+        );
       }
 
       console.error(`unknown command: ${name}`);

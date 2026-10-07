@@ -8,6 +8,10 @@ import {
   verifyKeyMiddleware,
 } from "discord-interactions";
 import { getRandomEmoji } from "./utils.js";
+import imageA from "./assets/img_0.jpeg";
+import imageB from "./assets/img_1.jpeg";
+import imageC from "./assets/img_2.jpeg";
+import { AttachmentBuilder } from "discord.js";
 
 // Create an express app
 const app = express();
@@ -60,25 +64,32 @@ app.post(
       }
 
       // 'image' command
+      const images = [imageA, imageB, imageC];
       if (name === "image") {
-        return res.send({
-          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-          data: {
-            flags: InteractionResponseFlags.IS_COMPONENTS_V2,
-            components: [
-              {
-                type: MessageComponentTypes.MEDIA_GALLERY,
-                // Fetches a random emoji to send from a helper function
-                items: [
-                  {
-                    media: {
-                      url: "https://cdn3.emoji.gg/emojis/7544-autumnpopcorn.png",
+        images.forEach((image) => {
+          let dcImage = AttachmentBuilder(image);
+
+          setTimeout(10000);
+          return res.send({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: {
+              flags: InteractionResponseFlags.IS_COMPONENTS_V2,
+              files: [dcImage],
+              components: [
+                {
+                  type: MessageComponentTypes.MEDIA_GALLERY,
+                  // Fetches a random emoji to send from a helper function
+                  items: [
+                    {
+                      media: {
+                        url: "attachment://" + image,
+                      },
                     },
-                  },
-                ],
-              },
-            ],
-          },
+                  ],
+                },
+              ],
+            },
+          });
         });
       }
 

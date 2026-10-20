@@ -70,30 +70,10 @@ app.post(
         const channel = await client.channels.fetch(channel_id);
 
         const imgSrcStart = "./assets/essen/img_";
+        imageSender(channel, imgSrcStart);
 
         setInterval(
-          async () => {
-            const imgNum = Math.floor(Math.random() * 238);
-            const attachment = new AttachmentBuilder(
-              imgSrcStart + imgNum + ".jpeg",
-            );
-            await channel.send({
-              flags: InteractionResponseFlags.IS_COMPONENTS_V2,
-              files: [attachment],
-              components: [
-                {
-                  type: MessageComponentTypes.MEDIA_GALLERY,
-                  items: [
-                    {
-                      media: {
-                        url: `attachment://img_${imgNum}.jpeg`,
-                      },
-                    },
-                  ],
-                },
-              ],
-            });
-          },
+          async () => imageSender(channel, imgSrcStart),
           3 * 60 * 60 * 1000,
         );
         return res.send({
@@ -119,6 +99,27 @@ app.post(
     return res.status(400).json({ error: "unknown interaction type" });
   },
 );
+
+async function imageSender(channel, imgSrcStart) {
+  const imgNum = Math.floor(Math.random() * 238);
+  const attachment = new AttachmentBuilder(imgSrcStart + imgNum + ".jpeg");
+  await channel.send({
+    flags: InteractionResponseFlags.IS_COMPONENTS_V2,
+    files: [attachment],
+    components: [
+      {
+        type: MessageComponentTypes.MEDIA_GALLERY,
+        items: [
+          {
+            media: {
+              url: `attachment://img_${imgNum}.jpeg`,
+            },
+          },
+        ],
+      },
+    ],
+  });
+}
 
 app.listen(PORT, () => {
   console.log("Listening on port", PORT);

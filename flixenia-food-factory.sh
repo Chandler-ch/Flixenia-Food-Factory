@@ -1,3 +1,3 @@
 npm run register
-npm run start &
-ngrok http 3000 &
+nohup npm run start &
+nohup ngrok http 3000 &

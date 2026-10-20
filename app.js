@@ -14,14 +14,23 @@ import { AttachmentBuilder, Client, GatewayIntentBits } from "discord.js";
 const app = express();
 // Get port, or default to 3000
 const PORT = process.env.PORT || 3000;
-// To keep track of our active games
-const activeGames = {};
+
+const imgSrcStart = "./assets/essen/img_";
 
 const client = new Client({
   intents: [GatewayIntentBits.Guilds],
 });
 client.login(process.env.DISCORD_TOKEN);
 
+if (process.env.CHANNEL_ID) {
+  client.on("ready", (client) => {
+    imageComfortableSender(client, imgSrcStart);
+    setInterval(
+      async () => imageComfortableSender(client, imgSrcStart),
+      3 * 60 * 60 * 1000,
+    );
+  });
+}
 /**
  * Interactions endpoint URL where Discord will send HTTP requests
  * Parse request body and verifies incoming requests using discord-interactions package
@@ -69,7 +78,6 @@ app.post(
       if (name === "image") {
         const channel = await client.channels.fetch(channel_id);
 
-        const imgSrcStart = "./assets/essen/img_";
         imageSender(channel, imgSrcStart);
 
         setInterval(
@@ -84,7 +92,8 @@ app.post(
               {
                 type: MessageComponentTypes.TEXT_DISPLAY,
                 // Fetches a random emoji to send from a helper function
-                content: "Flixenia's Food Factory started to work!",
+                content:
+                  "Flixenia's Food Factory started to work!" + channel_id,
               },
             ],
           },
@@ -104,6 +113,28 @@ async function imageSender(channel, imgSrcStart) {
   const imgNum = Math.floor(Math.random() * 238);
   const attachment = new AttachmentBuilder(imgSrcStart + imgNum + ".jpeg");
   await channel.send({
+    flags: InteractionResponseFlags.IS_COMPONENTS_V2,
+    files: [attachment],
+    components: [
+      {
+        type: MessageComponentTypes.MEDIA_GALLERY,
+        items: [
+          {
+            media: {
+              url: `attachment://img_${imgNum}.jpeg`,
+            },
+          },
+        ],
+      },
+    ],
+  });
+}
+
+async function imageComfortableSender(client, imgSrcStart) {
+  const imgNum = Math.floor(Math.random() * 238);
+  const attachment = new AttachmentBuilder(imgSrcStart + imgNum + ".jpeg");
+
+  client.channels.cache.get(process.env.CHANNEL_ID).send({
     flags: InteractionResponseFlags.IS_COMPONENTS_V2,
     files: [attachment],
     components: [

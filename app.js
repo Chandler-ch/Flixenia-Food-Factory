@@ -8,7 +8,12 @@ import {
   verifyKeyMiddleware,
 } from "discord-interactions";
 import { getRandomEmoji } from "./utils.js";
-import { AttachmentBuilder, Client, GatewayIntentBits } from "discord.js";
+import {
+  AttachmentBuilder,
+  Client,
+  GatewayIntentBits,
+  Presence,
+} from "discord.js";
 
 // Create an express app
 const app = express();
@@ -24,9 +29,10 @@ client.login(process.env.DISCORD_TOKEN);
 
 if (process.env.CHANNEL_ID) {
   client.on("ready", (client) => {
-    imageComfortableSender(client, imgSrcStart);
+    imageSenderv1(client.channels.cache.get(process.env.CHANNEL_ID));
     setInterval(
-      async () => imageComfortableSender(client, imgSrcStart),
+      async () =>
+        imageSenderv1(client.channels.cache.get(process.env.CHANNEL_ID)),
       3 * 60 * 60 * 1000,
     );
   });
@@ -78,12 +84,9 @@ app.post(
       if (name === "image") {
         const channel = await client.channels.fetch(channel_id);
 
-        imageSender(channel, imgSrcStart);
+        imageSenderv1(channel);
 
-        setInterval(
-          async () => imageSender(channel, imgSrcStart),
-          3 * 60 * 60 * 1000,
-        );
+        setInterval(async () => imageSenderv1(channel), 3 * 60 * 60 * 1000);
         return res.send({
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
           data: {
@@ -92,8 +95,7 @@ app.post(
               {
                 type: MessageComponentTypes.TEXT_DISPLAY,
                 // Fetches a random emoji to send from a helper function
-                content:
-                  "Flixenia's Food Factory started to work!" + channel_id,
+                content: "Flixenia's Food Factory started to work!",
               },
             ],
           },
@@ -109,32 +111,10 @@ app.post(
   },
 );
 
-async function imageSender(channel, imgSrcStart) {
+async function imageSenderv1(preStuff) {
   const imgNum = Math.floor(Math.random() * 238);
   const attachment = new AttachmentBuilder(imgSrcStart + imgNum + ".jpeg");
-  await channel.send({
-    flags: InteractionResponseFlags.IS_COMPONENTS_V2,
-    files: [attachment],
-    components: [
-      {
-        type: MessageComponentTypes.MEDIA_GALLERY,
-        items: [
-          {
-            media: {
-              url: `attachment://img_${imgNum}.jpeg`,
-            },
-          },
-        ],
-      },
-    ],
-  });
-}
-
-async function imageComfortableSender(client, imgSrcStart) {
-  const imgNum = Math.floor(Math.random() * 238);
-  const attachment = new AttachmentBuilder(imgSrcStart + imgNum + ".jpeg");
-
-  client.channels.cache.get(process.env.CHANNEL_ID).send({
+  await preStuff.send({
     flags: InteractionResponseFlags.IS_COMPONENTS_V2,
     files: [attachment],
     components: [

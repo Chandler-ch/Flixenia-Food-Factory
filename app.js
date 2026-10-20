@@ -8,16 +8,9 @@ import {
   verifyKeyMiddleware,
 } from "discord-interactions";
 import { getRandomEmoji } from "./utils.js";
-import {
-  AttachmentBuilder,
-  Client,
-  GatewayIntentBits,
-  Presence,
-} from "discord.js";
+import { AttachmentBuilder, Client, GatewayIntentBits } from "discord.js";
 
-// Create an express app
 const app = express();
-// Get port, or default to 3000
 const PORT = process.env.PORT || 3000;
 
 const imgSrcStart = "./assets/essen/img_";
@@ -29,10 +22,10 @@ client.login(process.env.DISCORD_TOKEN);
 
 if (process.env.CHANNEL_ID) {
   client.on("ready", (client) => {
-    imageSenderv1(client.channels.cache.get(process.env.CHANNEL_ID));
+    imageSender(client.channels.cache.get(process.env.CHANNEL_ID));
     setInterval(
       async () =>
-        imageSenderv1(client.channels.cache.get(process.env.CHANNEL_ID)),
+        imageSender(client.channels.cache.get(process.env.CHANNEL_ID)),
       3 * 60 * 60 * 1000,
     );
   });
@@ -45,7 +38,6 @@ app.post(
   "/interactions",
   verifyKeyMiddleware(process.env.PUBLIC_KEY),
   async function (req, res) {
-    // Interaction id, type and data
     const { type, data, channel_id } = req.body;
 
     /**
@@ -60,49 +52,21 @@ app.post(
      * See https://discord.com/developers/docs/interactions/application-commands#slash-commands
      */
     if (type === InteractionType.APPLICATION_COMMAND) {
-      const { name } = data;
+      const { name: commandName } = data;
 
-      // "test" command
-      if (name === "test") {
-        // Send a message into the channel where command was triggered from
-        return res.send({
-          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-          data: {
-            flags: InteractionResponseFlags.IS_COMPONENTS_V2,
-            components: [
-              {
-                type: MessageComponentTypes.TEXT_DISPLAY,
-                // Fetches a random emoji to send from a helper function
-                content: `hello world ${getRandomEmoji()}`,
-              },
-            ],
-          },
-        });
+      if (commandName === "test") {
+        return textSender(res, `hello world ${getRandomEmoji()}`);
       }
 
-      // 'image' command
-      if (name === "image") {
+      if (commandName === "image") {
         const channel = await client.channels.fetch(channel_id);
 
-        imageSenderv1(channel);
-
-        setInterval(async () => imageSenderv1(channel), 3 * 60 * 60 * 1000);
-        return res.send({
-          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-          data: {
-            flags: InteractionResponseFlags.IS_COMPONENTS_V2,
-            components: [
-              {
-                type: MessageComponentTypes.TEXT_DISPLAY,
-                // Fetches a random emoji to send from a helper function
-                content: "Flixenia's Food Factory started to work!",
-              },
-            ],
-          },
-        });
+        imageSender(channel);
+        setInterval(async () => imageSender(channel), 3 * 60 * 60 * 1000);
+        return textSender(res, "Flixenia's Food Factory started to work!");
       }
 
-      console.error(`unknown command: ${name}`);
+      console.error(`unknown command: ${commandName}`);
       return res.status(400).json({ error: "unknown command" });
     }
 
@@ -111,7 +75,22 @@ app.post(
   },
 );
 
-async function imageSenderv1(preStuff) {
+async function textSender(res, text) {
+  res.send({
+    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+    data: {
+      flags: InteractionResponseFlags.IS_COMPONENTS_V2,
+      components: [
+        {
+          type: MessageComponentTypes.TEXT_DISPLAY,
+          content: text,
+        },
+      ],
+    },
+  });
+}
+
+async function imageSender(preStuff) {
   const imgNum = Math.floor(Math.random() * 238);
   const attachment = new AttachmentBuilder(imgSrcStart + imgNum + ".jpeg");
   await preStuff.send({

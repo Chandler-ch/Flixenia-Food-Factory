@@ -37,7 +37,6 @@ export async function InstallGlobalCommands(appId, commands) {
   }
 }
 
-// Simple method that returns a random emoji from list
 export function getRandomEmoji() {
   const emojiList = [
     "😭",

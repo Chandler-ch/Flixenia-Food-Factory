@@ -1,23 +1,17 @@
 # Getting Started app for Discord
 
-This project contains a basic rock-paper-scissors-style Discord app written in JavaScript, built for the [getting started guide](https://discord.com/developers/docs/getting-started).
+This project contains a basic food publishment Discord app written in JavaScript, built for me.
 
-![Demo of app](https://github.com/discord/discord-example-app/raw/main/assets/getting-started-demo.gif?raw=true)
+This project was forked from [discord example app](https://github.com/discord/discord-example-app).
 
 ## Project structure
+
 Below is a basic overview of the project structure:
 
 ```
-├── examples    -> short, feature-specific sample apps
-│   ├── app.js  -> finished app.js code
-│   ├── button.js
-│   ├── command.js
-│   ├── modal.js
-│   ├── selectMenu.js
 ├── .env.sample -> sample .env file
 ├── app.js      -> main entrypoint for app
 ├── commands.js -> slash command payloads + helpers
-├── game.js     -> logic specific to RPS
 ├── utils.js    -> utility functions and enums
 ├── package.json
 ├── README.md
@@ -27,24 +21,27 @@ Below is a basic overview of the project structure:
 ## Running app locally
 
 Before you start, you'll need to install [NodeJS](https://nodejs.org/en/download/) and [create a Discord app](https://discord.com/developers/applications) with the proper permissions:
+
 - `applications.commands`
 - `bot` (with Send Messages enabled)
-
 
 Configuring the app is covered in detail in the [getting started guide](https://discord.com/developers/docs/getting-started).
 
 ### Setup project
 
 First clone the project:
+
 ```
 git clone https://github.com/discord/discord-example-app.git
 ```
 
 Then navigate to its directory and install dependencies:
+
 ```
 cd discord-example-app
 npm install
 ```
+
 ### Get app credentials
 
 Fetch the credentials from your app's settings and add them to a `.env` file (see `.env.sample` for an example). You'll need your app ID (`APP_ID`), bot token (`DISCORD_TOKEN`), and public key (`PUBLIC_KEY`).
@@ -66,12 +63,8 @@ npm run register
 After your credentials are added, go ahead and run the app:
 
 ```
-node app.js
+npm run start
 ```
-
-> ⚙️ A package [like `nodemon`](https://github.com/remy/nodemon), which watches for local changes and restarts your app, may be helpful while locally developing.
-
-If you aren't following the [getting started guide](https://discord.com/developers/docs/getting-started), you can move the contents of `examples/app.js` (the finished `app.js` file) to the top-level `app.js`.
 
 ### Set up interactivity
 
@@ -102,6 +95,7 @@ On the **General Information** tab, there will be an **Interactions Endpoint URL
 Click **Save Changes**, and your app should be ready to run 🚀
 
 ## Other resources
+
 - Read **[the documentation](https://discord.com/developers/docs/intro)** for in-depth information about API features.
 - Browse the `examples/` folder in this project for smaller, feature-specific code examples
 - Join the **[Discord Developers server](https://discord.gg/discord-developers)** to ask questions about the API, attend events hosted by the Discord API team, and interact with other devs.

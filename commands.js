@@ -1,7 +1,6 @@
 import "dotenv/config";
 import { InstallGlobalCommands } from "./utils.js";
 
-// Simple test command
 const TEST_COMMAND = {
   name: "test",
   description: "Basic bitch",
@@ -12,7 +11,7 @@ const TEST_COMMAND = {
 
 const IMAGE_COMMAND = {
   name: "image",
-  description: "sends picture",
+  description: "starts sending pictures every three hours",
   type: 1,
 };
 

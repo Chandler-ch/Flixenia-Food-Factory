@@ -4,6 +4,8 @@ This project contains a basic food publishment Discord app written in JavaScript
 
 This project was forked from [discord example app](https://github.com/discord/discord-example-app).
 
+To get Flixenia's Food Factory to work, run the shell script inside the project. 
+
 ## Project structure
 
 Below is a basic overview of the project structure:

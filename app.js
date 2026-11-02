@@ -21,13 +21,15 @@ const client = new Client({
 client.login(process.env.DISCORD_TOKEN);
 
 if (process.env.CHANNEL_ID) {
-  client.on("ready", (client) => {
-    imageSender(client.channels.cache.get(process.env.CHANNEL_ID));
-    setInterval(
-      async () =>
-        imageSender(client.channels.cache.get(process.env.CHANNEL_ID)),
-      3 * 60 * 60 * 1000,
-    );
+  const channelIDs = process.env.CHANNEL_ID.split(",").map((id) => id.trim());
+  channelIDs.forEach((cId) => {
+    client.on("ready", (client) => {
+      imageSender(client.channels.cache.get(cId));
+      setInterval(
+        async () => imageSender(client.channels.cache.get(cId)),
+        3 * 60 * 60 * 1000,
+      );
+    });
   });
 }
 /**
